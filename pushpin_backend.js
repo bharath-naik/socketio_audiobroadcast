@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var filepath = path.join(__dirname, "red.webm");
 var totalMillisecondsToSend = 1000;
-var readStream = fs.createReadStream(filepath, {highWaterMark: chunkSizeKB*1024}); 
+var readStream = fs.createReadStream(filepath); 
 
 app.get('/', (req, res) => {
     res.set({
