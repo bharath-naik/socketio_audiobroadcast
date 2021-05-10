@@ -1,16 +1,16 @@
-var http = require('http');
+var express = require('express'); 
+const app = express();
 var fs = require('fs');
 var path = require('path');
 var Throttle = require('throttle');
 var filepath = path.join(__dirname, "red.webm");
-var chunkSizeKB=1/2; //should be exponent of 2
-totalKBtoSend=128; //should be exponent of 2
-var totalChunksToSend=Math.floor(totalKBtoSend/chunkSizeKB);
+var totalMillisecondsToSend = 1000;
 var readStream = fs.createReadStream(filepath, {highWaterMark: chunkSizeKB*1024}); 
-http.createServer(function (req, res) {
+
 const bitRate = 32000; // bitRate in kbps
 const throttle = new Throttle(bitRate/8);
-    res.writeHead(200, {
+app.get('/', (req, res) => {
+    res.set({
         'Content-Type': 'audio/webm',
         'Grip-Hold': 'stream',
         'Grip-Channel': 'myVlogs',
@@ -20,20 +20,12 @@ const throttle = new Throttle(bitRate/8);
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Max-Age': 9000
     });
-
-    var count = count ? count : 0; //get count of which chunk is ready
-    console.log('count:::', count);
-
-    readStream.pipe(throttle).on("data", chunk => {
-        // write chunk in the response
-        count = count + 1;
-        count !== totalChunksToSend && res.write(chunk);
-      if (count === totalChunksToSend) {
-        readStream.destroy();
-        // give some delay to res.end
-        // to prevent error "res.write called after res.end"
-        res.end();
-      }
-    });
-}).listen(8000);
+    readStream.pipe(throttle).pipe(res); // pipe readStream to response (via throttle). chunks will be gathered into res and sent at once
+    setTimeout(() => {  // just send defined millisecond audio
+        readStream.pipe(throttle).unpipe(res);
+        readStream.unpipe(throttle);
+        res.status(200).send();
+    }, totalMillisecondsToSend);
+});
+app.listen(3000);
 console.log('streaming audio data now 8000');
