@@ -28,12 +28,10 @@ io.on("connection", socket => {
 });
 
 socket.on('myVlogs', function(audioData){
-   var bufView = new Uint8Array(audioData);
-   console.log('audioBuffer received',bufView)
-   console.log(typeof(bufView));
+   console.log('audioBuffer received',audioData)
    var pub = new grip.GripPubControl({
       control_uri: "http://localhost:5561"});
-  pub.publishHttpStream("myVlogs", bufView);
+  pub.publishHttpStream("myVlogs", audioData);
  });
   socket.send("hey i am from server"); // from server to client
 
