@@ -19,7 +19,7 @@ const throttle = new Throttle(bitRate/8);
         'Access-Control-Expose-Headers': 'Date',
         'Access-Control-Allow-Credentials': true,
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Max-Age': 9000
+        'Access-Control-Max-Age': 0
     });
 
     var count = 0; //get count of which chunk is ready
