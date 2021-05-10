@@ -41,7 +41,7 @@
     var sourceBuffer;
 
     var gumAudio = document.querySelector('audio#gum');
-    var recordedVideo = document.querySelector('audio#recorded');
+    var recordedAudio = document.querySelector('audio#recorded');
 
     var recordButton = document.querySelector('button#record');
     var playButton = document.querySelector('button#play');
@@ -56,10 +56,7 @@
     navigator.getUserMedia = navigator.getUserMedia ||
       navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-    var constraints = {
-      audio: true,
-      video: false
-    };
+    var constraints = { audio: true  };
 
     navigator.getUserMedia(constraints, successCallback, errorCallback);
 
@@ -77,17 +74,12 @@
       console.log('navigator.getUserMedia error: ', error);
     }
 
-    // function handleSourceOpen(event) {
-    //   console.log('MediaSource opened');
-    //   sourceBuffer = mediaSource.addSourceBuffer('audio/webm; codecs="opus"');
-    //   console.log('Source buffer: ', sourceBuffer);
-    // }
-
+    
     function handleDataAvailable(event) {
       if (event.data && event.data.size > 0) {
         recordedBlobs.push(event.data);
-        console.log(event.data);
-        socket.emit('myVlogs', event.data); //emits blob data to socket server 
+        console.log(new Blob([event.data]));
+        socket.emit('myVlogs', new Blob([event.data])); //emits blob data to socket server 
       }
     }
 
@@ -110,14 +102,14 @@
     function startRecording() {
       var options = { 
         mimeType: 'audio/webm', 
-        bitsPerSecond: 100000 };
+        bitsPerSecond: 32000 };
       recordedBlobs = [];
       try {
         mediaRecorder = new MediaRecorder(window.stream, options);
       } catch (e0) {
         console.log('Unable to create MediaRecorder with options Object: ', e0);
         try {
-          options = { mimeType: 'audio/webm,codecs=vp9', bitsPerSecond: 32000 };
+          options = { mimeType: 'audio/webm,codecs=vorbis', bitsPerSecond: 32000 };
           mediaRecorder = new MediaRecorder(window.stream, options);
         } catch (e1) {
           console.log('Unable to create MediaRecorder with options Object: ', e1);
@@ -138,19 +130,19 @@
       downloadButton.disabled = true;
       mediaRecorder.onstop = handleStop;
       mediaRecorder.ondataavailable = handleDataAvailable;
-      mediaRecorder.start(10); // collect 10ms of data
+      mediaRecorder.start(100); // collect microphone chunks to websocket every 3000 milliseconds
       console.log('MediaRecorder started', mediaRecorder);
     }
 
     function stopRecording() {
       mediaRecorder.stop();
       console.log('Recorded Blobs: ', recordedBlobs);
-      recordedVideo.controls = true;
+      recordedAudio.controls = true;
     }
 
     function play() {
       var superBuffer = new Blob(recordedBlobs, { type: 'audio/webm' });
-      recordedVideo.src = window.URL.createObjectURL(superBuffer);
+      recordedAudio.src = window.URL.createObjectURL(superBuffer);
     }
 
     function download() {
