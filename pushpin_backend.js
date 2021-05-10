@@ -2,13 +2,10 @@ var express = require('express');
 const app = express();
 var fs = require('fs');
 var path = require('path');
-var Throttle = require('throttle');
 var filepath = path.join(__dirname, "red.webm");
 var totalMillisecondsToSend = 1000;
 var readStream = fs.createReadStream(filepath, {highWaterMark: chunkSizeKB*1024}); 
 
-const bitRate = 32000; // bitRate in kbps
-const throttle = new Throttle(bitRate/8);
 app.get('/', (req, res) => {
     res.set({
         'Content-Type': 'audio/webm',
@@ -20,7 +17,7 @@ app.get('/', (req, res) => {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Max-Age': 9000
     });
-    readStream.pipe(throttle).pipe(res); // pipe readStream to response (via throttle). chunks will be gathered into res and sent at once
+    readStream.pipe(res); // pipe readStream to response (via throttle). chunks will be gathered into res and sent at once
     setTimeout(() => {  // just send defined millisecond audio
         readStream.pipe(throttle).unpipe(res);
         readStream.unpipe(throttle);
