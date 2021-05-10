@@ -10,7 +10,6 @@ var totalChunksToSend=Math.floor(totalKBtoSend/chunkSizeKB);
 var readStream = fs.createReadStream(filepath, {highWaterMark: chunkSizeKB*1024}); 
 const bitRate = 32000; // bitRate in kbps
 const throttle = new Throttle(bitRate/8);
-
     res.writeHead(200, {
         'Content-Type': 'audio/webm',
         'Grip-Hold': 'stream',
@@ -26,13 +25,13 @@ const throttle = new Throttle(bitRate/8);
 
     readStream.pipe(throttle).on("data", chunk => {
         // write chunk in the response
-        res.write(chunk);
-      count = count + 1;
+        count = count + 1;
+        count !== totalChunksToSend && res.write(chunk);
       if (count === totalChunksToSend) {
         readStream.destroy();
         // give some delay to res.end
         // to prevent error "res.write called after res.end"
-        setTimeout(()=>res.end(),1000);
+        res.end();
       }
     });
 }).listen(8000);
