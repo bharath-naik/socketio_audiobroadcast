@@ -9,7 +9,7 @@ var readStream = fs.createReadStream(filepath);
 app.get('/', (req, res) => {
   console.log("new request received")
     res.set({
-        'Content-Type': 'application/json',
+        'Content-Type': 'audio/webm',
         'Grip-Hold': 'stream',
         'Grip-Channel': 'myVlogs',
         'Access-Control-Allow-Methods': 'OPTIONS, HEAD, GET, POST, PUT, DELETE',
@@ -21,8 +21,8 @@ app.get('/', (req, res) => {
     readStream.pipe(res); // pipe readStream to response (via throttle). chunks will be gathered into res and sent at once
     setTimeout(() => {  // just send defined millisecond audio
         readStream.unpipe(res);
-        res.status(200).end();
         readStream.destroy();
+        res.status(200).end();
     }, totalMillisecondsToSend);
 });
 app.listen(8000);
