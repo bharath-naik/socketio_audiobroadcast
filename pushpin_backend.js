@@ -21,7 +21,7 @@ const throttle = new Throttle(bitRate/8);
         'Access-Control-Max-Age': 9000
     });
 
-    var count = 0; //get count of which chunk is ready
+    var count = count ? count : 0; //get count of which chunk is ready
 
     readStream.pipe(throttle).on("data", chunk => {
         // write chunk in the response
