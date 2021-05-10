@@ -2,12 +2,12 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var Throttle = require('throttle');
-http.createServer(function (req, res) {
 var filepath = path.join(__dirname, "red.webm");
 var chunkSizeKB=1/2; //should be exponent of 2
 totalKBtoSend=128; //should be exponent of 2
 var totalChunksToSend=Math.floor(totalKBtoSend/chunkSizeKB);
 var readStream = fs.createReadStream(filepath, {highWaterMark: chunkSizeKB*1024}); 
+http.createServer(function (req, res) {
 const bitRate = 32000; // bitRate in kbps
 const throttle = new Throttle(bitRate/8);
     res.writeHead(200, {
@@ -22,6 +22,7 @@ const throttle = new Throttle(bitRate/8);
     });
 
     var count = count ? count : 0; //get count of which chunk is ready
+    console.log('count:::', count);
 
     readStream.pipe(throttle).on("data", chunk => {
         // write chunk in the response
