@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
     readStream.pipe(res); // pipe readStream to response (via throttle). chunks will be gathered into res and sent at once
     setTimeout(() => {  // just send defined millisecond audio
         readStream.unpipe(res);
-        res.status(200).send();
+        res.status(200).end();
         readStream.destroy();
     }, totalMillisecondsToSend);
 });
