@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
     setTimeout(() => {  // just send defined millisecond audio
         readStream.unpipe(res);
         readStream.destroy();
-        res.status(200).end();
+        res.end();
     }, totalMillisecondsToSend);
 });
 app.listen(8000);
